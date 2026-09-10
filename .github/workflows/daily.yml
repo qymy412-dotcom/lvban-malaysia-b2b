@@ -12,9 +12,9 @@ on:
         required: false
         default: ''
       interval_sec:
-        description: 'Interval between emails (sec)'
+        description: 'Interval between emails (sec, default 720 = 12 min, ±40% jitter)'
         required: false
-        default: '90'
+        default: '720'
 
 # 写权限: 用于跑完后 commit/push sent_addresses.txt + send_log_v2.txt
 permissions:
@@ -23,7 +23,7 @@ permissions:
 jobs:
   send:
     runs-on: ubuntu-latest
-    timeout-minutes: 60   # 单 job 60min 上限 (15 封 × 90s = 22.5min 足够)
+    timeout-minutes: 240   # 单 job 240min 上限 (15 封 × 12min = 180min ±jitter 足够)
 
     steps:
       - name: Checkout repo (含 sent_addresses.txt 历史)
@@ -67,7 +67,7 @@ jobs:
           LVBAN_GMAIL_REFRESH_TOKEN: ${{ secrets.LVBAN_GMAIL_REFRESH_TOKEN }}
         run: |
           # 构造脚本参数
-          ARGS="--start-now --auto-progress --interval ${{ github.event.inputs.interval_sec || '90' }}"
+          ARGS="--start-now --auto-progress --interval ${{ github.event.inputs.interval_sec || '720' }}"
           if [ -n "${{ github.event.inputs.daily_cap }}" ]; then
             ARGS="$ARGS --daily-cap ${{ github.event.inputs.daily_cap }}"
           fi
