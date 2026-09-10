@@ -1331,7 +1331,6 @@ def main():
         if wait_sec > 0:
             log_event(f"💤 等待 {wait_sec/3600:.1f}h 后启动 — 您可以关闭电脑，沙箱会独立运行")
             # 同步在脚本里 sleep（沙箱后台跑，无需交互）
-            import time
             time.sleep(wait_sec)
             log_event(f"⏰ 启动时间到！开始执行...")
 
