@@ -24,18 +24,42 @@ jobs:
   send:
     runs-on: ubuntu-latest
     timeout-minutes: 60   # 单 job 60min 上限 (15 封 × 90s = 22.5min 足够)
-    
+
     steps:
       - name: Checkout repo (含 sent_addresses.txt 历史)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0   # 拿全部历史, 看到 sent_addresses.txt 全部 dedup 记录
-      
+
       - name: Setup Python 3.13
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      
+
+      - name: 恢复 send_log_v2.txt 历史 (避免被覆盖)
+        run: |
+          # 把 HEAD 里已 commit 的 send_log_v2.txt 恢复成最新
+          if git show HEAD:send_log_v2.txt > /dev/null 2>&1; then
+            git show HEAD:send_log_v2.txt > send_log_v2.txt
+            echo "✅ 恢复历史 log: $(wc -l < send_log_v2.txt) 行"
+          else
+            touch send_log_v2.txt
+            echo "ℹ️  没有历史 log, 新建空文件"
+          fi
+          echo "" >> send_log_v2.txt
+          echo "=== $[$(date -u +%s)] [$(date -u +'%Y-%m-%d %H:%M:%S UTC')] [github-actions] workflow run start ===" >> send_log_v2.txt
+
+      - name: 诊断 env vars 注入 (debug)
+        env:
+          LVBAN_GMAIL_CLIENT_ID: ${{ secrets.LVBAN_GMAIL_CLIENT_ID }}
+          LVBAN_GMAIL_CLIENT_SECRET: ${{ secrets.LVBAN_GMAIL_CLIENT_SECRET }}
+          LVBAN_GMAIL_REFRESH_TOKEN: ${{ secrets.LVBAN_GMAIL_REFRESH_TOKEN }}
+        run: |
+          echo "=== env vars 诊断 ==="
+          echo "LVBAN_GMAIL_CLIENT_ID      = ${LVBAN_GMAIL_CLIENT_ID:0:25}... (len=${#LVBAN_GMAIL_CLIENT_ID})"
+          echo "LVBAN_GMAIL_CLIENT_SECRET  = ${LVBAN_GMAIL_CLIENT_SECRET:0:10}... (len=${#LVBAN_GMAIL_CLIENT_SECRET})"
+          echo "LVBAN_GMAIL_REFRESH_TOKEN  = ${LVBAN_GMAIL_REFRESH_TOKEN:0:10}... (len=${#LVBAN_GMAIL_REFRESH_TOKEN})"
+
       - name: 今日发件 (从 secrets 注入 OAuth 凭证)
         env:
           LVBAN_GMAIL_CLIENT_ID: ${{ secrets.LVBAN_GMAIL_CLIENT_ID }}
@@ -47,16 +71,14 @@ jobs:
           if [ -n "${{ github.event.inputs.daily_cap }}" ]; then
             ARGS="$ARGS --daily-cap ${{ github.event.inputs.daily_cap }}"
           fi
-          echo "🚀 启动: python send_malaysia_tier1_via_refresh_token.py $ARGS"
-          python send_malaysia_tier1_via_refresh_token.py $ARGS 2>&1 | tee send_log_v2.txt
-          # 兜底: 主脚本内部 tee 不稳定, 再次追加
-          echo "" >> send_log_v2.txt
-      
+          echo "🚀 启动: python send_malaysia_tier1_via_refresh_token.py $ARGS" | tee -a send_log_v2.txt
+          python send_malaysia_tier1_via_refresh_token.py $ARGS 2>&1 | tee -a send_log_v2.txt
+
       - name: Commit dedup log + send log 到 repo
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
+
           # 仅当有变更时 commit + push
           git add sent_addresses.txt send_log_v2.txt 2>/dev/null || true
           if git diff --cached --quiet; then
