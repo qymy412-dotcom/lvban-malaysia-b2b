@@ -1,0 +1,11 @@
+# 不要 commit 凭证 / 临时文件
+.env
+.env.*
+*.pyc
+__pycache__/
+.DS_Store
+Thumbs.db
+
+# 允许 sent_addresses.txt + send_log_v2.txt 走 git
+!sent_addresses.txt
+!send_log_v2.txt

@@ -1,0 +1,69 @@
+name: Daily Lvban Outreach — Malaysia B2B
+
+on:
+  # MYT 09:00 = UTC 01:00 (Asia/Kuala_Lumpur = UTC+8)
+  schedule:
+    - cron: '0 1 * * *'
+  # 手动触发（测试用）
+  workflow_dispatch:
+    inputs:
+      daily_cap:
+        description: 'Override daily cap (empty = auto-progress)'
+        required: false
+        default: ''
+      interval_sec:
+        description: 'Interval between emails (sec)'
+        required: false
+        default: '90'
+
+# 写权限: 用于跑完后 commit/push sent_addresses.txt + send_log_v2.txt
+permissions:
+  contents: write
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60   # 单 job 60min 上限 (15 封 × 90s = 22.5min 足够)
+    
+    steps:
+      - name: Checkout repo (含 sent_addresses.txt 历史)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 拿全部历史, 看到 sent_addresses.txt 全部 dedup 记录
+      
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: 今日发件 (从 secrets 注入 OAuth 凭证)
+        env:
+          LVBAN_GMAIL_CLIENT_ID: ${{ secrets.LVBAN_GMAIL_CLIENT_ID }}
+          LVBAN_GMAIL_CLIENT_SECRET: ${{ secrets.LVBAN_GMAIL_CLIENT_SECRET }}
+          LVBAN_GMAIL_REFRESH_TOKEN: ${{ secrets.LVBAN_GMAIL_REFRESH_TOKEN }}
+        run: |
+          # 构造脚本参数
+          ARGS="--start-now --auto-progress --interval ${{ github.event.inputs.interval_sec || '90' }}"
+          if [ -n "${{ github.event.inputs.daily_cap }}" ]; then
+            ARGS="$ARGS --daily-cap ${{ github.event.inputs.daily_cap }}"
+          fi
+          echo "🚀 启动: python send_malaysia_tier1_via_refresh_token.py $ARGS"
+          python send_malaysia_tier1_via_refresh_token.py $ARGS 2>&1 | tee send_log_v2.txt
+          # 兜底: 主脚本内部 tee 不稳定, 再次追加
+          echo "" >> send_log_v2.txt
+      
+      - name: Commit dedup log + send log 到 repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # 仅当有变更时 commit + push
+          git add sent_addresses.txt send_log_v2.txt 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "ℹ️  无新发件, 不 commit"
+          else
+            COMMIT_MSG="auto: outreach log $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git commit -m "$COMMIT_MSG"
+            git push
+            echo "✅ dedup log 已 push"
+          fi
