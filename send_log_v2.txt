@@ -40,3 +40,39 @@
   "error": "invalid_client",
   "error_description": "The OAuth client was not found."
 }
+
+=== 1789037640 [2026-09-10 10:54:00 UTC] [github-actions] workflow run start ===
+🚀 启动: python send_malaysia_tier1_via_refresh_token.py --start-now --auto-progress --interval 720
+[2026-09-10 10:54:01] ✓ Refresh Token → Access Token 成功 (有效期 3599s)
+[2026-09-10 10:54:01] ⚠️ 发件人不匹配: 期望 qymy412@gmail.com, 实际 (HTTP 403)
+[2026-09-10 10:54:01] 📅 Campaign Day 16（2026-09-10）→ 自动 daily-cap = 15
+[2026-09-10 10:54:01] ⏭️  检测到已发记录，跳过 20 封（续跑模式）
+[2026-09-10 10:54:01] 🛡️  防封策略: 单日上限 15 | 间隔 720s ±40% | 预热 60s
+[2026-09-10 10:54:01] [1/62] 准备发送 Mail 2 → New Orient Marketing (info@neworient.com.my)
+[2026-09-10 10:54:01]    主题: 20 years importing chairs from China — fresh ergonomic lineu...
+[2026-09-10 10:54:01]    ✓ 已发送 → info@neworient.com.my (Message-ID: 1a08af3ff9464d97)
+[2026-09-10 10:54:01]    等待 742s（基础 720s ±40%）...
+======================================================================
+🍂 Lvban Furniture — Gmail API via Refresh Token
+   模式: LIVE SEND
+   收件人: 62 封
+   间隔: 720s ±30% jitter
+   单日上限: 15 封
+======================================================================
+[2026-09-10 10:54:01] ✓ Refresh Token → Access Token 成功 (有效期 3599s)
+[2026-09-10 10:54:01] ⚠️ 发件人不匹配: 期望 qymy412@gmail.com, 实际 (HTTP 403)
+[2026-09-10 10:54:01] 📅 Campaign Day 16（2026-09-10）→ 自动 daily-cap = 15
+[2026-09-10 10:54:01] ⏭️  检测到已发记录，跳过 20 封（续跑模式）
+[2026-09-10 10:54:01] 🛡️  防封策略: 单日上限 15 | 间隔 720s ±40% | 预热 60s
+[2026-09-10 10:54:01] [1/62] 准备发送 Mail 2 → New Orient Marketing (info@neworient.com.my)
+[2026-09-10 10:54:01]    主题: 20 years importing chairs from China — fresh ergonomic lineu...
+[2026-09-10 10:54:01]    ✓ 已发送 → info@neworient.com.my (Message-ID: 1a08af3ff9464d97)
+[2026-09-10 10:54:01]    等待 742s（基础 720s ±40%）...
+Traceback (most recent call last):
+  File "/home/runner/work/lvban-malaysia-b2b/lvban-malaysia-b2b/send_malaysia_tier1_via_refresh_token.py", line 1439, in <module>
+    main()
+    ~~~~^^
+  File "/home/runner/work/lvban-malaysia-b2b/lvban-malaysia-b2b/send_malaysia_tier1_via_refresh_token.py", line 1431, in main
+    time.sleep(actual)
+    ^^^^
+UnboundLocalError: cannot access local variable 'time' where it is not associated with a value
