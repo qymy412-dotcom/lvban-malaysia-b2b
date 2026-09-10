@@ -11,3 +11,18 @@
    [Environment]::SetEnvironmentVariable("LVBAN_GMAIL_CLIENT_SECRET", "...", "User")
    [Environment]::SetEnvironmentVariable("LVBAN_GMAIL_REFRESH_TOKEN", "...", "User")
 
+
+=== 1789017100 [2026-09-10 05:11:40 UTC] [github-actions] workflow run start ===
+🚀 启动: python send_malaysia_tier1_via_refresh_token.py --start-now --auto-progress --interval 90
+======================================================================
+🍂 Lvban Furniture — Gmail API via Refresh Token
+   模式: LIVE SEND
+   收件人: 62 封
+   间隔: 90s ±30% jitter
+   单日上限: 15 封
+======================================================================
+❌ 缺少环境变量: LVBAN_GMAIL_CLIENT_ID, LVBAN_GMAIL_CLIENT_SECRET, LVBAN_GMAIL_REFRESH_TOKEN
+   设置方法：
+   [Environment]::SetEnvironmentVariable("LVBAN_GMAIL_CLIENT_ID", "...", "User")
+   [Environment]::SetEnvironmentVariable("LVBAN_GMAIL_CLIENT_SECRET", "...", "User")
+   [Environment]::SetEnvironmentVariable("LVBAN_GMAIL_REFRESH_TOKEN", "...", "User")
