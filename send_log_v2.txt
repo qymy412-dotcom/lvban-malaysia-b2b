@@ -132,3 +132,17 @@ UnboundLocalError: cannot access local variable 'time' where it is not associate
   "error": "invalid_grant",
   "error_description": "Token has been expired or revoked."
 }
+
+=== 1789521191 [2026-09-16 01:13:11 UTC] [github-actions] workflow run start ===
+🚀 启动: python send_malaysia_tier1_via_refresh_token.py --start-now --auto-progress --interval 720
+======================================================================
+🍂 Lvban Furniture — Gmail API via Refresh Token
+   模式: LIVE SEND
+   收件人: 62 封
+   间隔: 720s ±30% jitter
+   单日上限: 15 封
+======================================================================
+❌ Token 端点错误 400: {
+  "error": "invalid_grant",
+  "error_description": "Token has been expired or revoked."
+}
